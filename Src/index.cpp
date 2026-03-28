@@ -12,6 +12,9 @@
     #include <unistd.h>
 #endif
 
+#include "SouthBoundInterfaceManager.h"
+#include "App.h"
+
 
 void handle_switch(int client_socket){
     char buffer[1024];
@@ -34,45 +37,16 @@ void handle_switch(int client_socket){
     }
 }
 
-
-void start_controller(){
-    WSADATA wsa;
-    WSAStartup(MAKEWORD(2,2), &wsa); //Init Winsock
-
-    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
-
-    sockaddr_in server;
-    server.sin_family = AF_INET;
-    server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons(6653); //standard SDN port
-
-    if (bind(sock, (struct sockaddr*)&server, sizeof(server)) == SOCKET_ERROR){
-        std::cout << "Bind Failed!" << std::endl;
-        return;
-    }
-
-    listen(sock,3);
-
-    std::cout << "Controller listening on port 6653..." << std::endl;
-
-    //Accept a switch connection
-    //shouldnt the switch acceptance come
-    //after it is initialized
-    SOCKET new_socket = accept(sock, NULL, NULL);
-
-    std::cout << "Switch connected!" << std::endl;
-
     //Now you would recv() the 8-byte header here
     //Apparently the first thing a switch will send is an OFPT_HELLO(type 0).
     //to stay connected, your controller must immediatley send an OFPT_HELLO
     //back. if you don't, the switch will timeout and disconnect within seconds.
-}
-
 
 int main(){
-    start_controller();
+    //start_controller();
     //initialize southbound interface and check
     //to see if 
+    SouthBoundInterfaceManager::Init();
 
     return 0;
 }
