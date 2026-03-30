@@ -12,7 +12,7 @@
     #include <unistd.h>
 #endif
 
-#include "SouthBoundInterfaceManager.h"
+//#include "SouthBoundInterfaceManager.h"
 #include "App.h"
 
 
@@ -43,11 +43,7 @@ void handle_switch(int client_socket){
     //back. if you don't, the switch will timeout and disconnect within seconds.
 
 int main(){
-    //start_controller();
-    //initialize southbound interface and check
-    //to see if 
-    SouthBoundInterfaceManager::Init();
-
+    
     return 0;
 }
 //need to bind to sockets
