@@ -2,6 +2,7 @@
 #include "ISouthBoundInterface.hpp"
 #include <winsock.h>
 #include <thread>
+#include "OpenFlowHeader.h"
 
 class SouthBoundInterface:public ISouthBoundInterface{
     SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -9,8 +10,12 @@ class SouthBoundInterface:public ISouthBoundInterface{
     uint8_t PORT_NUMBER;
 
     SOCKET listening_sock = socket(AF_INET, SOCK_STREAM, 0);
-
     sockaddr_in server;
+
+    //should this actually be in the manager
+    SOCKET connection_thread_pool[];
+    //the listening sock is not part of this
+    //the receving sock will be pulled from this pool
 
 public:
     bool connect(uint32_t ip, uint8_t port) override{
@@ -39,6 +44,7 @@ public:
 
             if(new_sock != INVALID_SOCKET){
                 std::thread(dispatch, new_sock).detach();
+                this->dispatch(new_sock);
             }
         }
     }
@@ -49,8 +55,25 @@ public:
 
     void dispatch(SOCKET client_sock){
         char buffer[4096];
-        recv(client_sock, buffer, sizeof(buffer), 0);
+        int bytesReceived = recv(client_sock, buffer, sizeof(buffer), 0);
 
-        //give buffer to respective function
+        OpenFlowHeader* hdr = reinterpret_cast<OpenFlowHeader*>(buffer);
+        char* body = buffer + 8;
+
+        //bcuz yk simple math
+        int bodySize = bytesReceived - 8;
+            //create a function that accepts the socket data etc
+            //
+        if(hdr->TYPE == 10){
+            //HANDLE_PACKET_IN(body, bodySize);
+            //should actually be able to handle this via polymorphism
+            //message.process()
+            //message was an interface and every header and body
+            //is based off it, thus has the process method
+            //and each has its unique implementation
+            //so just call which it is to handle?
+        }
     }
+
+
 };
