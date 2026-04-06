@@ -19,7 +19,27 @@ struct PacketOutMetaData{
 
 };
 
-//when parsing bytes:
-    //OpenFlowHeader* h = (OpenFlowHeader*)buffer; //risky
+enum class OFPacketType : uint8_t {
+    HELLO = 0,
+    FEATURE_REQUEST = 1,
+    PACKET_IN = 10
+};
 
-    //OpenFlowHeader parse_header(const uint8_t* buf); //preferred
+struct OFPacket {
+    virtual void process() = 0;
+    virtual ~OFPacket() = default;
+};
+
+struct OFPacketHello : OFPacket {
+    void process() override {
+        std::cout << "Processing HELLO packet" << std::endl;
+    }
+};
+
+struct OFPacketIn : OFPacket {
+    void process() override {
+        //look up in the flow table?
+       // int bytesSent = send();
+        std::cout << "Processing PACKET_IN packet" << std::endl;
+    }
+};

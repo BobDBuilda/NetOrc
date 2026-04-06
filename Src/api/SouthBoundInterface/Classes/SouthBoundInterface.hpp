@@ -1,79 +1,131 @@
-#include <string>
-#include "ISouthBoundInterface.hpp"
 #include <winsock.h>
-#include <thread>
+//#include <thread>
 #include "OpenFlowHeader.h"
+#include "Message.hpp"
+#include <chrono>
+#include <unordered_map>
+#include <functional>
+#include <memory>
+//#include "ThreadPool.hpp"
 
-class SouthBoundInterface:public ISouthBoundInterface{
-    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
-    WSADATA wsa;
-    uint8_t PORT_NUMBER;
+//the job of the SBI is strictly to translate. it takes raw binary from the wire
+//and deserializes it into a protocol specific object
+//
 
-    SOCKET listening_sock = socket(AF_INET, SOCK_STREAM, 0);
-    sockaddr_in server;
+using FactoryFn = std::function<std::unique_ptr<OFPacket>(char*, int)>;
 
-    //should this actually be in the manager
-    SOCKET connection_thread_pool[];
-    //the listening sock is not part of this
-    //the receving sock will be pulled from this pool
+std::unordered_map<OFPacketType, FactoryFn> packetFactories = {
+    {OFPacketType::HELLO, [](char*,int){ return std::make_unique<OFPacketHello>(); }},
+    {OFPacketType::PACKET_IN, [](char*,int){ return std::make_unique<OFPacketIn>(); }},
+    // ... add other types
+};
 
+class SouthBoundInterface{
 public:
-    bool connect(uint32_t ip, uint8_t port) override{
-        WSAStartup(MAKEWORD(2,2), &wsa); //Init Winsock
+    void init(){
+        WSADATA wsa;
+        WSAStartup(MAKEWORD(2, 2), &wsa);
+
+        SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if(sock == INVALID_SOCKET){
+            std::cout << WSAGetLastError() << std::endl;
+        }
 
         sockaddr_in server;
         server.sin_family = AF_INET;
-        server.sin_addr.s_addr = INADDR_ANY; //GOING TO alter this to accept IPs later
-        //Host to network short so that it can be understood by net devices.
-        server.sin_port = htons(PORT_NUMBER);
+        server.sin_addr.s_addr = INADDR_ANY;
+        server.sin_port = htons(20045);
 
-        if (bind(listening_sock, (struct sockaddr*)&server, sizeof(server)) == SOCKET_ERROR){
+        if (bind(sock, (struct sockaddr*)&server, sizeof(server)) == SOCKET_ERROR){
             std::cout << "Bind Failed!" << std::endl;
+        }
+
+        listen(sock, SOMAXCONN);
+        std::cout << "Southbound Interface listening on port " << 20045 << std::endl;
+
+        accept_conn(sock);
+    }
+
+    void accept_conn(SOCKET sock){
+        std::cout << "Transitioned to the accepting state ..." << std::endl;
+
+        int tries = 0;
+        while(true){
+            fd_set readfds;
+            FD_ZERO(&readfds);
+            FD_SET(sock, &readfds);
+
+            timeval timeout;
+            timeout.tv_sec = 10;
+            timeout.tv_usec = 0;
+
+            int activity = select(0, &readfds, NULL, NULL, &timeout);
+
+            if(activity > 0 && FD_ISSET(sock, &readfds)){
+                SOCKET client = accept(sock, nullptr, nullptr);
+                std::cout << "Client connected" << std::endl;
+                tries = 0;
+                receive_conn(client);
+            }else{
+                std::cout << "No incoming connection ... " << std::endl;
+            } 
+            tries++;
+        }
+        //by default the above is blocking, for non-blocking behavior
+        //the socket must be configured using fcntl() or WSAEventSelect()   
+    }
+
+    void receive_conn(SOCKET sock){
+        char buffer[4096];
+        int bytesReceived = recv(sock, buffer, sizeof(buffer), 0);
+
+        //OpenFlowHeader* hdr = reinterpret_cast<OpenFlowHeader*>(buffer);
+        //char* body = buffer + 8;
+
+        if (bytesReceived < 8) {
+            std::cerr << "Incomplete header received\n";
             return;
         }
 
+        uint8_t version = buffer[0];
+        uint8_t rawtype    = buffer[1];
 
-        //listens on the socket created above and sets backlog limit to 5
-        //to limit number of active connections for the time being
-        listen(listening_sock, 5);
+        uint16_t length;
+        memcpy(&length, buffer + 2, 2);
+        length = ntohs(length);
 
-        std::cout << "Southbound Interface listening on port " << PORT_NUMBER << std::endl;
+        uint32_t xid;
+        memcpy(&xid, buffer + 4, 4);
+        xid = ntohl(xid);
 
-        while(true){
-            SOCKET new_sock = accept(listening_sock, NULL, NULL);
-
-            if(new_sock != INVALID_SOCKET){
-                std::thread(dispatch, new_sock).detach();
-                this->dispatch(new_sock);
-            }
-        }
-    }
-
-    // int receiveData(char* buffer, int len) override {
-    //     return recv(sock, buffer, len, 0); 
-    // }
-
-    void dispatch(SOCKET client_sock){
-        char buffer[4096];
-        int bytesReceived = recv(client_sock, buffer, sizeof(buffer), 0);
-
-        OpenFlowHeader* hdr = reinterpret_cast<OpenFlowHeader*>(buffer);
+        // Payload starts immediately after the header
         char* body = buffer + 8;
-
-        //bcuz yk simple math
         int bodySize = bytesReceived - 8;
-            //create a function that accepts the socket data etc
-            //
-        if(hdr->TYPE == 10){
-            //HANDLE_PACKET_IN(body, bodySize);
-            //should actually be able to handle this via polymorphism
-            //message.process()
-            //message was an interface and every header and body
-            //is based off it, thus has the process method
-            //and each has its unique implementation
-            //so just call which it is to handle?
+
+        std::cout << "Version: " << (int)version << "\n";
+        std::cout << "Type: " << (int)rawtype << "\n";
+        std::cout << "Length: " << length << "\n";
+        std::cout << "XID: " << xid << "\n";
+
+        OFPacketType type;
+        switch(rawtype){
+            case 0: type = OFPacketType::HELLO; break;
+            case 10: type = OFPacketType::PACKET_IN; break;
+            default:
+                std::cerr << "Unknown type: " << (int)rawtype << std::endl;
+                return;
+        } 
+
+        auto it = packetFactories.find(type);
+        if(it != packetFactories.end()){
+            auto pkt = it->second(buffer + 8, bytesReceived - 8);
+            pkt->process();
         }
+
+
     }
 
-
+    void send_res(SOCKET sock){
+    
+    }
 };
