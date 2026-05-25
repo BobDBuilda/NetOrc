@@ -64,10 +64,14 @@ CMAKE_BINARY_DIR = /home/nikolai/Desktop/Projects/NetOrc/build
 
 # The main recursive "all" target.
 all: CMakeFiles/NetOrc.dir/all
+all: CMakeFiles/validator_tests.dir/all
+all: CMakeFiles/app_integration_tests.dir/all
 .PHONY : all
 
 # The main recursive "codegen" target.
 codegen: CMakeFiles/NetOrc.dir/codegen
+codegen: CMakeFiles/validator_tests.dir/codegen
+codegen: CMakeFiles/app_integration_tests.dir/codegen
 .PHONY : codegen
 
 # The main recursive "preinstall" target.
@@ -76,6 +80,8 @@ preinstall:
 
 # The main recursive "clean" target.
 clean: CMakeFiles/NetOrc.dir/clean
+clean: CMakeFiles/validator_tests.dir/clean
+clean: CMakeFiles/app_integration_tests.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -109,6 +115,70 @@ CMakeFiles/NetOrc.dir/codegen:
 CMakeFiles/NetOrc.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/NetOrc.dir/build.make CMakeFiles/NetOrc.dir/clean
 .PHONY : CMakeFiles/NetOrc.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/validator_tests.dir
+
+# All Build rule for target.
+CMakeFiles/validator_tests.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/validator_tests.dir/build.make CMakeFiles/validator_tests.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/validator_tests.dir/build.make CMakeFiles/validator_tests.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles --progress-num=10,11 "Built target validator_tests"
+.PHONY : CMakeFiles/validator_tests.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/validator_tests.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/validator_tests.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles 0
+.PHONY : CMakeFiles/validator_tests.dir/rule
+
+# Convenience name for target.
+validator_tests: CMakeFiles/validator_tests.dir/rule
+.PHONY : validator_tests
+
+# codegen rule for target.
+CMakeFiles/validator_tests.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/validator_tests.dir/build.make CMakeFiles/validator_tests.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles --progress-num=10,11 "Finished codegen for target validator_tests"
+.PHONY : CMakeFiles/validator_tests.dir/codegen
+
+# clean rule for target.
+CMakeFiles/validator_tests.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/validator_tests.dir/build.make CMakeFiles/validator_tests.dir/clean
+.PHONY : CMakeFiles/validator_tests.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/app_integration_tests.dir
+
+# All Build rule for target.
+CMakeFiles/app_integration_tests.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles --progress-num=6,7,8,9 "Built target app_integration_tests"
+.PHONY : CMakeFiles/app_integration_tests.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/app_integration_tests.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles 4
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/app_integration_tests.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles 0
+.PHONY : CMakeFiles/app_integration_tests.dir/rule
+
+# Convenience name for target.
+app_integration_tests: CMakeFiles/app_integration_tests.dir/rule
+.PHONY : app_integration_tests
+
+# codegen rule for target.
+CMakeFiles/app_integration_tests.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles --progress-num=6,7,8,9 "Finished codegen for target app_integration_tests"
+.PHONY : CMakeFiles/app_integration_tests.dir/codegen
+
+# clean rule for target.
+CMakeFiles/app_integration_tests.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/clean
+.PHONY : CMakeFiles/app_integration_tests.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

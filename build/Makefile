@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = /home/nikolai/Desktop/Projects/NetOrc/build
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "No interactive CMake dialog available..."
@@ -129,12 +139,39 @@ NetOrc/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/NetOrc.dir/build.make CMakeFiles/NetOrc.dir/build
 .PHONY : NetOrc/fast
 
+#=============================================================================
+# Target rules for targets named validator_tests
+
+# Build rule for target.
+validator_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 validator_tests
+.PHONY : validator_tests
+
+# fast build rule for target.
+validator_tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/validator_tests.dir/build.make CMakeFiles/validator_tests.dir/build
+.PHONY : validator_tests/fast
+
+#=============================================================================
+# Target rules for targets named app_integration_tests
+
+# Build rule for target.
+app_integration_tests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 app_integration_tests
+.PHONY : app_integration_tests
+
+# fast build rule for target.
+app_integration_tests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/build
+.PHONY : app_integration_tests/fast
+
 src/api/SouthBoundInterface/Classes/SouthBoundInterface.o: src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.o
 .PHONY : src/api/SouthBoundInterface/Classes/SouthBoundInterface.o
 
 # target to build an object file
 src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/NetOrc.dir/build.make CMakeFiles/NetOrc.dir/src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.o
 .PHONY : src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.o
 
 src/api/SouthBoundInterface/Classes/SouthBoundInterface.i: src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.i
@@ -143,6 +180,7 @@ src/api/SouthBoundInterface/Classes/SouthBoundInterface.i: src/api/SouthBoundInt
 # target to preprocess a source file
 src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/NetOrc.dir/build.make CMakeFiles/NetOrc.dir/src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.i
 .PHONY : src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.i
 
 src/api/SouthBoundInterface/Classes/SouthBoundInterface.s: src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.s
@@ -151,6 +189,7 @@ src/api/SouthBoundInterface/Classes/SouthBoundInterface.s: src/api/SouthBoundInt
 # target to generate assembly for a file
 src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/NetOrc.dir/build.make CMakeFiles/NetOrc.dir/src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.s
 .PHONY : src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.s
 
 src/api/SouthBoundInterface/Utils/HandleData.o: src/api/SouthBoundInterface/Utils/HandleData.cpp.o
@@ -183,6 +222,7 @@ src/core/Classes/App.o: src/core/Classes/App.cpp.o
 # target to build an object file
 src/core/Classes/App.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/NetOrc.dir/build.make CMakeFiles/NetOrc.dir/src/core/Classes/App.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/src/core/Classes/App.cpp.o
 .PHONY : src/core/Classes/App.cpp.o
 
 src/core/Classes/App.i: src/core/Classes/App.cpp.i
@@ -191,6 +231,7 @@ src/core/Classes/App.i: src/core/Classes/App.cpp.i
 # target to preprocess a source file
 src/core/Classes/App.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/NetOrc.dir/build.make CMakeFiles/NetOrc.dir/src/core/Classes/App.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/src/core/Classes/App.cpp.i
 .PHONY : src/core/Classes/App.cpp.i
 
 src/core/Classes/App.s: src/core/Classes/App.cpp.s
@@ -199,6 +240,7 @@ src/core/Classes/App.s: src/core/Classes/App.cpp.s
 # target to generate assembly for a file
 src/core/Classes/App.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/NetOrc.dir/build.make CMakeFiles/NetOrc.dir/src/core/Classes/App.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/src/core/Classes/App.cpp.s
 .PHONY : src/core/Classes/App.cpp.s
 
 src/index.o: src/index.cpp.o
@@ -225,6 +267,54 @@ src/index.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/NetOrc.dir/build.make CMakeFiles/NetOrc.dir/src/index.cpp.s
 .PHONY : src/index.cpp.s
 
+tests/app_integration_tests.o: tests/app_integration_tests.cpp.o
+.PHONY : tests/app_integration_tests.o
+
+# target to build an object file
+tests/app_integration_tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/tests/app_integration_tests.cpp.o
+.PHONY : tests/app_integration_tests.cpp.o
+
+tests/app_integration_tests.i: tests/app_integration_tests.cpp.i
+.PHONY : tests/app_integration_tests.i
+
+# target to preprocess a source file
+tests/app_integration_tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/tests/app_integration_tests.cpp.i
+.PHONY : tests/app_integration_tests.cpp.i
+
+tests/app_integration_tests.s: tests/app_integration_tests.cpp.s
+.PHONY : tests/app_integration_tests.s
+
+# target to generate assembly for a file
+tests/app_integration_tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app_integration_tests.dir/build.make CMakeFiles/app_integration_tests.dir/tests/app_integration_tests.cpp.s
+.PHONY : tests/app_integration_tests.cpp.s
+
+tests/validator_tests.o: tests/validator_tests.cpp.o
+.PHONY : tests/validator_tests.o
+
+# target to build an object file
+tests/validator_tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/validator_tests.dir/build.make CMakeFiles/validator_tests.dir/tests/validator_tests.cpp.o
+.PHONY : tests/validator_tests.cpp.o
+
+tests/validator_tests.i: tests/validator_tests.cpp.i
+.PHONY : tests/validator_tests.i
+
+# target to preprocess a source file
+tests/validator_tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/validator_tests.dir/build.make CMakeFiles/validator_tests.dir/tests/validator_tests.cpp.i
+.PHONY : tests/validator_tests.cpp.i
+
+tests/validator_tests.s: tests/validator_tests.cpp.s
+.PHONY : tests/validator_tests.s
+
+# target to generate assembly for a file
+tests/validator_tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/validator_tests.dir/build.make CMakeFiles/validator_tests.dir/tests/validator_tests.cpp.s
+.PHONY : tests/validator_tests.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -233,7 +323,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... test"
 	@echo "... NetOrc"
+	@echo "... app_integration_tests"
+	@echo "... validator_tests"
 	@echo "... src/api/SouthBoundInterface/Classes/SouthBoundInterface.o"
 	@echo "... src/api/SouthBoundInterface/Classes/SouthBoundInterface.i"
 	@echo "... src/api/SouthBoundInterface/Classes/SouthBoundInterface.s"
@@ -246,6 +339,12 @@ help:
 	@echo "... src/index.o"
 	@echo "... src/index.i"
 	@echo "... src/index.s"
+	@echo "... tests/app_integration_tests.o"
+	@echo "... tests/app_integration_tests.i"
+	@echo "... tests/app_integration_tests.s"
+	@echo "... tests/validator_tests.o"
+	@echo "... tests/validator_tests.i"
+	@echo "... tests/validator_tests.s"
 .PHONY : help
 
 

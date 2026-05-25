@@ -9,31 +9,33 @@ namespace Validator {
 
     /**
      * First-pass validation for OpenFlow packets.
-     * Screens the header for basic protocol compliance before dispatching to factories.
-     * 
-     * @param hdr The parsed OpenFlow header.
-     * @param receivedBytes The actual number of bytes read from the socket.
-     * @return true if the packet passes basic sanity checks, false otherwise.
+     * Screens the header for basic protocol compliance.
      */
     inline bool validateHeader(const OpenFlowHeader& hdr, size_t receivedBytes) {
-        // 1. Version Check: Support OpenFlow 1.0 (0x01)
+        const size_t MAX_OF_PACKET_SIZE = 65535; // Maximum OF 1.0 packet size
+
+        // 1. Version Check: Support OpenFlow 1.0
         if (hdr.VERSION != 0x01) {
-            std::cerr << "Validation Failed: Unsupported OF Version (0x" 
+            std::cerr << "Security Alert: Unsupported OF Version (0x" 
                       << std::hex << (int)hdr.VERSION << ")" << std::endl;
             return false;
         }
 
-        // 2. Minimum Length Check: Header is 8 bytes, so length must be >= 8
+        // 2. Minimum Length Check
         if (hdr.LENGTH < 8) {
-            std::cerr << "Validation Failed: Packet length too short (" 
-                      << hdr.LENGTH << " bytes)" << std::endl;
+            std::cerr << "Validation Failed: Packet too short (" << hdr.LENGTH << ")" << std::endl;
             return false;
         }
 
-        // 3. Buffer Integrity: Does the length field match the data we actually received?
+        // 3. Maximum Size Check (Prevent Buffer Overruns)
+        if (hdr.LENGTH > MAX_OF_PACKET_SIZE) {
+            std::cerr << "Security Alert: Packet length exceeds protocol limit (" << hdr.LENGTH << ")" << std::endl;
+            return false;
+        }
+
+        // 4. Buffer Integrity
         if (hdr.LENGTH != receivedBytes) {
-            std::cerr << "Validation Failed: Header length (" << hdr.LENGTH 
-                      << ") does not match received bytes (" << receivedBytes << ")" << std::endl;
+            std::cerr << "Validation Failed: Received " << receivedBytes << " but header expected " << hdr.LENGTH << std::endl;
             return false;
         }
 

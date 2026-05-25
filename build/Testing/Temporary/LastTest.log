@@ -1,0 +1,43 @@
+Start testing: May 24 09:51 AST
+----------------------------------------------------------
+1/1 Testing: validator_tests
+1/1 Test: validator_tests
+Command: "/home/nikolai/Desktop/Projects/NetOrc/build/validator_tests"
+Directory: /home/nikolai/Desktop/Projects/NetOrc/build
+"validator_tests" start time: May 24 09:51 AST
+Output:
+----------------------------------------------------------
+[PASS] validateHeader accepts a valid HELLO header
+Security Alert: Unsupported OF Version (0x2)
+[PASS] validateHeader rejects unsupported version
+Validation Failed: Packet too short (7)
+[PASS] validateHeader rejects packets shorter than 8 bytes
+Validation Failed: Received c but header expected 10
+[PASS] validateHeader rejects length mismatches
+[PASS] validateHeader accepts the maximum representable packet size
+Validation Failed: Unknown Packet Type (16)
+[PASS] validateHeader rejects unknown packet types
+[PASS] validateHello always accepts empty body
+Validation Failed: PACKET_IN body too small for header.
+[PASS] validatePacketIn rejects bodies smaller than 10 bytes
+Security Alert: PACKET_IN over-read detected! Frame claims 10 bytes but only 4 available.
+[PASS] validatePacketIn rejects over-read claims
+[PASS] validatePacketIn accepts valid body
+Validation Failed: ERROR body too short.
+[PASS] validateError rejects short bodies
+[PASS] validateError accepts minimum body
+Validation Failed: FLOW_MOD body too small for OF 1.0 (47 bytes).
+[PASS] validateFlowMod rejects short bodies
+Security Alert: Invalid FLOW_MOD command (5)
+[PASS] validateFlowMod rejects invalid commands
+[PASS] validateFlowMod accepts valid command range
+All validator tests passed
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"validator_tests" end time: May 24 09:51 AST
+"validator_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: May 24 09:51 AST

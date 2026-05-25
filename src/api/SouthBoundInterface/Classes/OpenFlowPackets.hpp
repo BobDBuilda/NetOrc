@@ -47,26 +47,26 @@ enum class OFPacketType : uint8_t {
     QUEUE_GET_CONFIG_REPLY = 21    // Response with queue configuration
 };
 
-struct OFPacket {
-    virtual void process() = 0;
-    virtual ~OFPacket() = default;
-};
+// struct OFPacket {
+//     virtual void process() = 0;
+//     virtual ~OFPacket() = default;
+// };
 
-struct OFPacketHello : OFPacket {
-    void process() override {
-        std::cout << "Processing HELLO packet" << std::endl;
-    }
-};
+// struct OFPacketHello : OFPacket {
+//     void process() override {
+//         std::cout << "Processing HELLO packet" << std::endl;
+//     }
+// };
 
-struct OFPacketIn : OFPacket {
-    void process() override {
-        // look up in the flow table?
-        // int bytesSent = send();
-        std::cout << "Processing PACKET_IN packet" << std::endl;
-    }
-};
+// struct OFPacketIn : OFPacket {
+//     void process() override {
+//         // look up in the flow table?
+//         // int bytesSent = send();
+//         std::cout << "Processing PACKET_IN packet" << std::endl;
+//     }
+// };
 
-OpenFlowHeader hdr;
-hdr.type = static_cast<uint8_t>(OFPacketType::HELLO);
+// OpenFlowHeader hdr;
+// hdr.type = static_cast<uint8_t>(OFPacketType::HELLO);
 
 #endif // OPENFLOW_PACKETS_HPP

@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/app_integration_tests.dir/link.d CMakeFiles/app_integration_tests.dir/tests/app_integration_tests.cpp.o CMakeFiles/app_integration_tests.dir/src/core/Classes/App.cpp.o CMakeFiles/app_integration_tests.dir/src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.o -o app_integration_tests  -lsqlite3

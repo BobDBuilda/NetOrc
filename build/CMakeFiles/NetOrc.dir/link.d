@@ -6,6 +6,7 @@ NetOrc: \
   CMakeFiles/NetOrc.dir/src/core/Classes/App.cpp.o \
   CMakeFiles/NetOrc.dir/src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.o \
   CMakeFiles/NetOrc.dir/src/api/SouthBoundInterface/Utils/HandleData.cpp.o \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libsqlite3.so \
   /usr/lib/gcc/x86_64-linux-gnu/15/libstdc++.so \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
@@ -48,6 +49,8 @@ CMakeFiles/NetOrc.dir/src/core/Classes/App.cpp.o:
 CMakeFiles/NetOrc.dir/src/api/SouthBoundInterface/Classes/SouthBoundInterface.cpp.o:
 
 CMakeFiles/NetOrc.dir/src/api/SouthBoundInterface/Utils/HandleData.cpp.o:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libsqlite3.so:
 
 /usr/lib/gcc/x86_64-linux-gnu/15/libstdc++.so:
 

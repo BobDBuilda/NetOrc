@@ -1,3 +1,6 @@
 /home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles/NetOrc.dir
+/home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles/validator_tests.dir
+/home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles/app_integration_tests.dir
+/home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles/test.dir
 /home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles/edit_cache.dir
 /home/nikolai/Desktop/Projects/NetOrc/build/CMakeFiles/rebuild_cache.dir

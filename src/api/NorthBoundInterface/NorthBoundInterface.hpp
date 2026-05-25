@@ -2,6 +2,10 @@
 #define NORTHBOUND_INTERFACE_HPP
 
 #include <iostream>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <arpa/inet.h>
 
 class NorthBoundInterface {
 public:
@@ -39,6 +43,21 @@ public:
         std::cout << "Southbound Interface listening on port " << 20045 << std::endl;
 
         accept_conn(sock);
+    }
+
+private:
+    void accept_conn(int sock) {
+        // Basic placeholder for accepting connections
+        while (true) {
+            int client = accept(sock, nullptr, nullptr);
+            if (client >= 0) {
+                std::cout << "NBI: Accepted connection" << std::endl;
+                close(client);
+            } else {
+                perror("accept failed");
+                break;
+            }
+        }
     }
 };
 

@@ -1,3 +1,6 @@
+#ifndef THREAD_ENVIRONMENT_HPP
+#define THREAD_ENVIRONMENT_HPP
+
 #include <vector>
 #include <thread>
 #include <queue>
@@ -6,16 +9,16 @@
 #include <condition_variable>
 #include <atomic>
 
-class ThreadPool{
+class ThreadEnvironment{
     private:
         std::vector<std::thread> workers;
         std::queue<std::function<void()>> tasks;
         std::mutex mtx;
-        std::condition_variable cv;
+        std::condition_variable condition_var;
         std::atomic<bool> stop;
 
     public:
-        ThreadPool(size_t num_threads) : stop(false){
+        ThreadEnvironment(size_t num_threads) : stop(false){
             for(size_t i = 0; i < num_threads; i++){
                 workers.emplace_back([this]() {
                     while(true){
@@ -23,7 +26,7 @@ class ThreadPool{
 
                         {
                             std::unique_lock<std::mutex> lock(mtx);
-                            cv.wait(lock, [this]() {
+                            condition_var.wait(lock, [this]() {
                                 return stop || !tasks.empty();
                             });
 
@@ -41,12 +44,12 @@ class ThreadPool{
             }
         }
 
-        ~ThreadPool(){
+        ~ThreadEnvironment(){
             {
                 std::unique_lock<std::mutex> lock(mtx);
                 stop = true;
             }
-            cv.notify_all();
+            condition_var.notify_all();
 
             for (auto& t: workers){
                 t.join();
@@ -62,6 +65,8 @@ class ThreadPool{
                 tasks.emplace(std::forward<F>(f));
             }
 
-            cv.notify_one();
+            condition_var.notify_one();
         }
 };
+
+#endif // THREAD_ENVIRONMENT_HPP

@@ -18,4 +18,4 @@ COPY . .
 RUN mkdir -p build
 
 # Add a script or entrypoint if needed
-CMD ["/bin/bash"]
+CMD ["/bin/bash", "-c", "cd build && cmake .. && make && ./NetOrc"]

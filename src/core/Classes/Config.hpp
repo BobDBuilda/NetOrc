@@ -1,12 +1,18 @@
+#ifndef CONFIG_HPP
+#define CONFIG_HPP
 
+struct Configuration {
+    bool debug = false;
+    bool verbose = false;
 
-class Configuration {
-    //should configurations be passed into this via DI
-    //IE through an object possibly loaded from a configuration file?
+    void printStatus() const {
+        if (debug) {
+            std::cout << "[Config] Debug mode: ENABLED" << std::endl;
+        }
+        if (verbose) {
+            std::cout << "[Config] Verbose logging: ENABLED" << std::endl;
+        }
+    }
+};
 
-
-    //should this be passed into another class
-    //or should this laod from a file?
-
-    //or should i 
-}
+#endif // CONFIG_HPP
