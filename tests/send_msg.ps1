@@ -1,51 +1,66 @@
 # Target controller
 $ip = "127.0.0.1"
-$port = 20045   # or 6653 depending on your controller
+$port = 20045
 
 # Create TCP client
 $client = New-Object System.Net.Sockets.TcpClient
-$client.Connect($ip, $port)
-$stream = $client.GetStream()
+try {
+    $client.Connect($ip, $port)
+    $stream = $client.GetStream()
 
-# ---- OpenFlow 1.0 PACKET_IN ----
-# Header fields:
-# version = 1 (OF 1.0)
-# type = 10 (PACKET_IN)
-# length = 18 + payload
-# xid = 1
+    # ---- Ethernet Header (LLDP) ----
+    $dstMac = [byte[]](0x01,0x80,0xC2,0x00,0x00,0x0E) # LLDP Multicast
+    $srcMac = [byte[]](0x00,0x11,0x22,0x33,0x44,0x55)
+    $etherType = [byte[]](0x88, 0xCC) # LLDP
 
-# Payload (dummy Ethernet frame)
-$payload = [byte[]](0x00,0x11,0x22,0x33,0x44,0x55,  # dst MAC
-                   0x66,0x77,0x88,0x99,0xaa,0xbb,  # src MAC
-                   0x08,0x00)                      # ethertype (IPv4)
+    # ---- LLDP TLVs ----
+    # Chassis ID (Type 1, Length 7, Subtype 7: Locally Assigned)
+    $chassisTlv = [byte[]](0x02, 0x07, 0x07) + [System.Text.Encoding]::ASCII.GetBytes("Switch1")
+    
+    # Port ID (Type 2, Length 6, Subtype 7: Locally Assigned)
+    $portTlv = [byte[]](0x04, 0x06, 0x07) + [System.Text.Encoding]::ASCII.GetBytes("Eth1")
+    
+    # TTL (Type 3, Length 2, Value 120)
+    $ttlTlv = [byte[]](0x06, 0x02, 0x00, 0x78)
+    
+    # End of LLDPDU (Type 0, Length 0)
+    $endTlv = [byte[]](0x00, 0x00)
 
-$totalLength = 18 + $payload.Length
+    $lldpPayload = $chassisTlv + $portTlv + $ttlTlv + $endTlv
+    $fullEthernetFrame = $dstMac + $srcMac + $etherType + $lldpPayload
 
-# Build header (big-endian)
-$header = [byte[]](
-    0x01,               # version
-    0x0A,               # type = PACKET_IN
-    0xFF,
-    0xFF,
-    0x00,0x00,0x00,0x01 # xid
-)
+    # ---- OpenFlow 1.0 PACKET_IN Header ----
+    $totalLength = 18 + $fullEthernetFrame.Length
+    $lenHigh = [byte][math]::Floor($totalLength / 256)
+    $lenLow = [byte]($totalLength % 256)
 
-# PACKET_IN body (simplified)
-$bufferId = [byte[]](0xFF,0xFF,0xFF,0xFF)
-$totalLenField = [byte[]](0x00, $payload.Length)
-$inPort = [byte[]](0x00,0x01)
-$reason = [byte[]](0x00)
-$pad = [byte[]](0x00)
+    $ofHeader = [byte[]](
+        0x01,               # version 1.0
+        0x0A,               # type = PACKET_IN
+        $lenHigh,           # length high
+        $lenLow,            # length low
+        0x00,0x00,0x00,0x01 # xid
+    )
 
-$body = $bufferId + $totalLenField + $inPort + $reason + $pad
+    # ---- OpenFlow 1.0 PACKET_IN Body ----
+    $bufferId = [byte[]](0xFF,0xFF,0xFF,0xFF) # No buffer
+    $frameLenHigh = [byte][math]::Floor($fullEthernetFrame.Length / 256)
+    $frameLenLow = [byte]($fullEthernetFrame.Length % 256)
+    $inPort = [byte[]](0x00,0x01) # Port 1
+    $reason = [byte[]](0x00)      # No match
+    $pad = [byte[]](0x00)
 
-# Final packet
-$packet = $header + $body + $payload
+    $ofBody = $bufferId + [byte[]]($frameLenHigh, $frameLenLow) + $inPort + $reason + $pad
 
-# Send
-$stream.Write($packet, 0, $packet.Length)
+    # Final packet
+    $packet = $ofHeader + $ofBody + $fullEthernetFrame
 
-Write-Host "PACKET_IN sent."
-
-$stream.Close()
-$client.Close()
+    # Send
+    $stream.Write($packet, 0, $packet.Length)
+    Write-Host "Sent OpenFlow PACKET_IN containing LLDP frame ($($packet.Length) bytes total)."
+    
+} catch {
+    Write-Error "Failed to send message: $_"
+} finally {
+    if ($null -ne $client) { $client.Close() }
+}

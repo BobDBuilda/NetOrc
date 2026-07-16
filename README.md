@@ -36,6 +36,57 @@ We are currently building the bridge between the controller and the switches. Th
     make
     ```
 
+### ## Observability
+
+NetOrc now exposes telemetry-friendly interfaces for standard tooling:
+
+- Structured logs: JSON on stdout (`ts`, `service`, `level`, `message`, and context fields).
+- Metrics endpoint: `GET /metrics` in Prometheus exposition format.
+- Health endpoint: `GET /health`.
+- Correlation ID: `X-Request-Id` accepted/returned on `POST /events`.
+
+Configuration:
+
+- `NETORC_SERVICE_NAME` (default: `netorc`)
+- `NETORC_NBI_PORT` (default: `8192`)
+- CLI flags:
+  - `--debug`
+  - `--verbose`
+  - `--service-name=<name>`
+  - `--nbi-port=<port>`
+
+Prometheus example scrape target:
+
+```yaml
+scrape_configs:
+  - job_name: netorc
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["localhost:8192"]
+```
+
+Datadog/OpenTelemetry:
+
+- Use log collection from stdout (container logs or systemd journal).
+- Scrape `http://<host>:<port>/metrics` with Datadog OpenMetrics integration or OTel collector.
+
+Local stack (Prometheus + Grafana + optional Datadog Agent):
+
+```bash
+docker compose -f docker-compose.observability.yml up -d --build
+```
+
+Access:
+- NetOrc: `http://localhost:8192/health`
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3000` (admin/admin)
+
+To include Datadog Agent:
+
+```bash
+DD_API_KEY=<your_key> docker compose -f docker-compose.observability.yml --profile datadog up -d --build
+```
+
 ### ## Roadmap
 * [x] Basic Directory Setup
 * [ ] **In Progress:** Reliable Switch Connection (SBI)

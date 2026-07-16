@@ -74,19 +74,11 @@ int main() {
     config.verbose = false;
     config.debug = false;
 
-    services.addService<IFlowManager>(&flowManager);
-    services.addService<IDatabaseService>(&db);
-    services.addService<Configuration>(&config);
-    services.addService<ITopologyManager>(&topo);
-
-    App app(services);
-
-    NetworkEvent event{};
-    event.client_fd = 42;
-    event.type = OFPacketType::HELLO;
-    event.payload = {};
-
-    app.processEvent(event, sbi, topo);
+    // Direct handler invocation test
+    auto handlers = getPacketHandlers();
+    auto helloHandler = handlers[oflib::PacketType::HELLO];
+    
+    helloHandler(42, {}, flowManager, db, sbi, topo);
 
     expectTrue(flowManager.add_calls == 1, "HELLO handler adds a flow once");
     expectTrue(db.save_calls == 1, "HELLO handler persists the flow once");

@@ -14,23 +14,22 @@
 //
 // what is ValidatorFn? 
 // its defined in the header to return a boolean.
-std::unordered_map<OFPacketType, ValidatorFn> packetValidators = {
+std::unordered_map<oflib::PacketType, ValidatorFn> packetValidators = {
     //Packet type , Validator function (lambda that validates the packet).
-    {OFPacketType::HELLO, [](char* data, int len) { 
+    {oflib::PacketType::HELLO, [](const uint8_t* data, size_t len) { 
         // HELLO validation: Basic structural check + logging
         std::cout << "[Validator] Performing multi-stage check for HELLO..." << std::endl;
-        bool isValid = Validator::BodyValidator::validateHello(data, len);
+        bool isValid = Validator::BodyValidator::validateHello(data, static_cast<int>(len));
         
         if (isValid) {
             // Stage 2: Any additional heuristics or security checks could go here.
-            // For HELLO, we just ensure it's logged for auditing.
         }
         return isValid;
     }},
-    {OFPacketType::PACKET_IN, [](char* data, int len) { 
+    {oflib::PacketType::PACKET_IN, [](const uint8_t* data, size_t len) { 
         // PACKET_IN validation: Deep structural check + Security Alerting
         std::cout << "[Validator] Performing multi-stage check for PACKET_IN..." << std::endl;
-        if (!Validator::BodyValidator::validatePacketIn(data, len)) {
+        if (!Validator::BodyValidator::validatePacketIn(data, static_cast<int>(len))) {
             return false;
         }
 
@@ -40,15 +39,18 @@ std::unordered_map<OFPacketType, ValidatorFn> packetValidators = {
         }
         return true; 
     }},
-    {OFPacketType::ERROR, [](char* data, int len) {
+    {oflib::PacketType::ERROR, [](const uint8_t* data, size_t len) {
         // ERROR validation: Check for minimal size and log the error code if possible
         std::cout << "[Validator] Performing multi-stage check for ERROR..." << std::endl;
-        return Validator::BodyValidator::validateError(data, len);
+        return Validator::BodyValidator::validateError(data, static_cast<int>(len));
     }},
-    {OFPacketType::FLOW_MOD, [](char* data, int len) {
+    {oflib::PacketType::FLOW_MOD, [](const uint8_t* data, size_t len) {
         // FLOW_MOD validation: Critical for security as it modifies the flow table.
         // We call the detailed structural validator in BodyValidator.
         std::cout << "[Validator] Performing multi-stage check for FLOW_MOD..." << std::endl;
-        return Validator::BodyValidator::validateFlowMod(data, len);
+        return Validator::BodyValidator::validateFlowMod(data, static_cast<int>(len));
     }}
 };
+
+//could implement either inheritance or compositon, to avoid 
+//std::cout << "Validator ....." all the time.

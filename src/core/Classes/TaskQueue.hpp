@@ -11,6 +11,8 @@
  * Multiple worker threads (from ThreadEnvironment) can push data here,
  * while the Main Thread (the Event Loop) pops data to process it.
  */
+
+ //this is now defunct.
 template <typename T>
 class TaskQueue {
 private:

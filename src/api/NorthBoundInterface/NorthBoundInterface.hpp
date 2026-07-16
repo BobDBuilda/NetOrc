@@ -2,63 +2,46 @@
 #define NORTHBOUND_INTERFACE_HPP
 
 #include <iostream>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <arpa/inet.h>
+#include <string>
+#include <vector>
+#include <thread>
+#include "httplib.h"
+#include "../../core/Classes/ThreadEnvironment.hpp"
+#include "../../core/Classes/TaskQueue.hpp"
+#include "../../core/Classes/Config.hpp"
+#include "../../core/Classes/Observability.hpp"
+#include "../SouthBoundInterface/Classes/SBI.hpp" // For OpenFlowMessage
 
 class NorthBoundInterface {
 public:
-     void init() {
-        int sock = socket(AF_INET, SOCK_STREAM, 0);
-        //values such as -1 and 0 are used to denote success or failure in system calls.
-        if (sock < 0) {
-            perror("socket failed");
-            return;
-        }
+    void init(ThreadEnvironment& threadEnvironment, Configuration& config) {
+        config_ = &config;
 
+        std::thread([this, &threadEnvironment]() {
+            // httplib manages the underlying TCP socket lifecycle (bind/listen/accept)
+            // and gives us route handlers similar to Express.
+            httplib::Server server;
+            registerRoutes(server, threadEnvironment);
+            const int port = (config_ && config_->northboundPort > 0) ? config_->northboundPort : kDefaultPort;
 
-        //what is opt1? 
-        int opt = 1;
-        if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-            perror("setsockopt");
-        }
+            if (config_ && config_->verbose) {
+                Logger::instance().log(LogLevel::INFO, "Northbound interface starting",
+                                       {{"port", std::to_string(port)}});
+            }
 
-        sockaddr_in server;
-        server.sin_family = AF_INET;
-        server.sin_addr.s_addr = INADDR_ANY;
-        server.sin_port = htons(20045);
-
-        if (bind(sock, (struct sockaddr*)&server, sizeof(server)) < 0) {
-            perror("bind failed");
-            close(sock);
-            return;
-        }
-
-        if (listen(sock, SOMAXCONN) < 0) {
-            perror("listen failed");
-            close(sock);
-            return;
-        }
-        std::cout << "Southbound Interface listening on port " << 20045 << std::endl;
-
-        accept_conn(sock);
+            if (!server.listen("0.0.0.0", port)) {
+                Logger::instance().log(LogLevel::ERROR, "NBI failed to bind/listen",
+                                       {{"port", std::to_string(port)}});
+            }
+        }).detach();
     }
 
 private:
-    void accept_conn(int sock) {
-        // Basic placeholder for accepting connections
-        while (true) {
-            int client = accept(sock, nullptr, nullptr);
-            if (client >= 0) {
-                std::cout << "NBI: Accepted connection" << std::endl;
-                close(client);
-            } else {
-                perror("accept failed");
-                break;
-            }
-        }
-    }
+    static constexpr int kDefaultPort = 8192;
+    Configuration* config_ = nullptr;
+
+    void registerRoutes(httplib::Server& server,
+                        ThreadEnvironment& threadEnvironment);
 };
 
 #endif // NORTHBOUND_INTERFACE_HPP

@@ -1,7 +1,7 @@
 #ifndef BODY_VALIDATOR_HPP
 #define BODY_VALIDATOR_HPP
 
-#include "../../Classes/OpenFlowPackets.hpp"
+#include "../../OpenFlowLib.h"
 #include <cstddef>
 #include <iostream>
 #include <cstring>
@@ -18,7 +18,7 @@ namespace Validator {
         /**
          * Validates the body of a HELLO packet.
          */
-        static bool validateHello(char* data, int len) {
+        static bool validateHello(const uint8_t* data, int len) {
             // HELLO bodies are optional version negotiation. 
             // Minimum is 0, maximum is (hdr.LENGTH - 8).
             return true; 
@@ -34,7 +34,7 @@ namespace Validator {
          * - pad (1 byte)
          * Total mandatory body: 10 bytes + RAW_DATA
          */
-        static bool validatePacketIn(char* data, int len) {
+        static bool validatePacketIn(const uint8_t* data, int len) {
             if (len < 10) {
                 std::cerr << "Validation Failed: PACKET_IN body too small for header." << std::endl;
                 return false;
@@ -61,7 +61,7 @@ namespace Validator {
          * Validates the body of an ERROR packet.
          * Structure: type(2), code(2), plus variable data.
          */
-        static bool validateError(char* data, int len) {
+        static bool validateError(const uint8_t* data, int len) {
             if (len < 4) {
                 std::cerr << "Validation Failed: ERROR body too short." << std::endl;
                 return false;
@@ -79,7 +79,7 @@ namespace Validator {
          * Let's verify: Match is 40 bytes, Cookie is 8, Command 2, Idle 2, Hard 2, Priority 2, 
          * BufferID 4, OutPort 2, Flags 2 = 72 bytes for the mandatory body.
          */
-        static bool validateFlowMod(char* data, int len) {
+        static bool validateFlowMod(const uint8_t* data, int len) {
             if (len < 72) {
                 std::cerr << "Validation Failed: FLOW_MOD body too small for OF 1.0 (" << len << " bytes)." << std::endl;
                 return false;
@@ -103,7 +103,7 @@ namespace Validator {
          * Simple sanitizer to ensure binary data doesn't contain unexpected 
          * patterns if it were ever logged as a string.
          */
-        static void sanitizeBinary(char* data, int len) {
+        static void sanitizeBinary(const uint8_t* data, int len) {
             // In a binary protocol, we don't 'remove' characters because 
             // 0x3B might be a valid part of an IP address, not a semicolon.
             // Instead, 'sanitization' means ensuring we never treat it as a string.

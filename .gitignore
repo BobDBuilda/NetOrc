@@ -1,5 +1,6 @@
 .env
 Dockerfile
+build/
 IIFE_PATTERNS.md
 PACKET_BODY_STRUCTURES.md
 thoughts.txt
@@ -10,4 +11,8 @@ GEMINI.md
 STACK_LIFETIME_EXPLANATION.md
 netorc.db
 GAMEPLAN.md
-Dockerfile
+KUBERNETES_ORCHESTRATION.md
+deploy/
+.dockerignore
+docker-compose.observability.yml
+netorc_failure_cause.txt

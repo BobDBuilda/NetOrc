@@ -9,65 +9,31 @@
 #include "PacketHandlers.hpp"
 #include "TopologyManager.hpp"
 
-void App::processEvent(const NetworkEvent& event, SouthBoundInterface& sbi, ITopologyManager& topo) {
-    auto& flowManager = services.getService<IFlowManager>();
-    auto& db = services.getService<IDatabaseService>();
-    auto& config = services.getService<Configuration>();
-    auto handlers = getPacketHandlers();
-
-    if (config.verbose) {
-        std::cout << "[Event Loop] Processing " << static_cast<int>(event.type)
-                  << " from FD: " << event.client_fd
-                  << " (Payload Size: " << event.payload.size() << ")" << std::endl;
-    }
-
-    auto handlerFound = handlers.find(event.type);
-    if (handlerFound != handlers.end()) {
-        handlerFound->second(event.client_fd, event.payload, flowManager, db, sbi, topo);
-    } else {
-        if (config.debug) {
-            std::cout << "  -> [Warning] No handler registered for packet type: "
-                      << static_cast<int>(event.type) << std::endl;
-        }
-    }
-}
-
 void App::run() {
     auto& config = services.getService<Configuration>();
     
     if (config.verbose) {
-        std::cout << "App is running with Service-Based Architecture..." << std::endl;
+        Logger::instance().log(LogLevel::INFO, "App is running with service-based architecture (No Event Loop required)");
     }
 
     try {
         auto& sbi = services.getService<SouthBoundInterface>();
-        //auto& nbi = services.getService<NorthBoundInterface>();
-        auto& tm = services.getService<ThreadEnvironment>();
-        auto& queue = services.getService<TaskQueue<NetworkEvent>>();
-        auto& topo = services.getService<ITopologyManager>();
+        auto& nbi = services.getService<NorthBoundInterface>();
+        auto& sbi_tm = services.getService<ThreadEnvironment>("SBI");
+        auto& nbi_tm = services.getService<ThreadEnvironment>("NBI");
+        auto& flowManager = services.getService<FlowManager>();
+        auto& dbService = services.getService<DatabaseService>();
+        auto& topoManager = services.getService<TopologyManager>();
 
-        sbi.init(tm, queue, config);
-        //nbi.init(tm, queue);
+        sbi.init(sbi_tm, config, flowManager, dbService, topoManager);
+        nbi.init(nbi_tm, config);
 
-        if (config.verbose) {
-            std::cout << "Starting Main Event Loop..." << std::endl;
-        }
+        // Keep the main thread alive/idle
         while (true) {
-            NetworkEvent event{};//initialized on the stack.
-            //pop off the TaskQueue
-            queue.wait_and_pop(event);//wait and pop is defined to take a reference.
-            //remember a 'pop' in itself does not take an argument, it just
-            //removes from the top of a queue, but 'wait_and_pop' is defined to take 
-            //a reference and populate it with the data from the front of the queue.
-            //
-            //thus event gets populated with 
-            // the data from the queue, and we can process it.
-            processEvent(event, sbi, topo);
-            //should dispatching go here?
-            //should sending logic go here?
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
 
     } catch (const std::exception& e) {
-        std::cerr << "Fatal App Error: " << e.what() << std::endl;
+        Logger::instance().log(LogLevel::ERROR, "Fatal app error", {{"error", e.what()}});
     }
 }

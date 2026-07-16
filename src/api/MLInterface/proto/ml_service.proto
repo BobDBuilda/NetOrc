@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package netorc;
+
+// Service definition for ML-based network orchestration decisions
+service MLInference {
+  // Predicts the optimal output port for a given network flow
+  rpc PredictPort (FlowRequest) returns (PortResponse) {}
+}
+
+// Features extracted from a network flow for inference
+message FlowRequest {
+  uint32 src_ip = 1;
+  uint32 dst_ip = 2;
+  uint32 src_port = 3;
+  uint32 dst_port = 4;
+  uint32 protocol = 5;
+  uint64 packet_length = 6;
+}
+
+// The prediction result
+message PortResponse {
+  uint32 port = 1;
+  float confidence = 2; // Added to demonstrate proto flexibility
+}

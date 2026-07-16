@@ -21,8 +21,8 @@ void expectFalse(bool value, const char* name) {
     expectTrue(!value, name);
 }
 
-OpenFlowHeader makeHeader(uint8_t version, uint8_t type, uint16_t length, uint32_t xid = 1) {
-    return OpenFlowHeader{version, type, length, xid};
+oflib::OpenFlowHeader makeHeader(uint8_t version, uint8_t type, uint16_t length, uint32_t xid = 1) {
+    return oflib::OpenFlowHeader{version, type, length, xid};
 }
 
 } // namespace
@@ -62,53 +62,53 @@ int main() {
     }
 
     {
-        char data[1] = {};
+        uint8_t data[1] = {};
         expectTrue(BodyValidator::validateHello(data, 0), "validateHello always accepts empty body");
     }
 
     {
-        char data[9] = {};
+        uint8_t data[9] = {};
         expectFalse(BodyValidator::validatePacketIn(data, 9), "validatePacketIn rejects bodies smaller than 10 bytes");
     }
 
     {
-        char data[14] = {};
+        uint8_t data[14] = {};
         data[4] = 0x00;
         data[5] = 0x10;
         expectFalse(BodyValidator::validatePacketIn(data, 14), "validatePacketIn rejects over-read claims");
     }
 
     {
-        char data[20] = {};
+        uint8_t data[20] = {};
         data[4] = 0x00;
         data[5] = 0x04;
         expectTrue(BodyValidator::validatePacketIn(data, 20), "validatePacketIn accepts valid body");
     }
 
     {
-        char data[3] = {};
+        uint8_t data[3] = {};
         expectFalse(BodyValidator::validateError(data, 3), "validateError rejects short bodies");
     }
 
     {
-        char data[4] = {};
+        uint8_t data[4] = {};
         expectTrue(BodyValidator::validateError(data, 4), "validateError accepts minimum body");
     }
 
     {
-        char data[71] = {};
+        uint8_t data[71] = {};
         expectFalse(BodyValidator::validateFlowMod(data, 71), "validateFlowMod rejects short bodies");
     }
 
     {
-        char data[72] = {};
+        uint8_t data[72] = {};
         data[48] = 0x00;
         data[49] = 0x05;
         expectFalse(BodyValidator::validateFlowMod(data, 72), "validateFlowMod rejects invalid commands");
     }
 
     {
-        char data[72] = {};
+        uint8_t data[72] = {};
         data[48] = 0x00;
         data[49] = 0x04;
         expectTrue(BodyValidator::validateFlowMod(data, 72), "validateFlowMod accepts valid command range");

@@ -12,6 +12,7 @@
 #include "DatabaseService.hpp"
 #include "PacketHandlers.hpp"
 #include "TopologyManager.hpp"
+#include "Observability.hpp"
 #include "api/SouthBoundInterface/Classes/SBI.hpp"
 #include "ThreadEnvironment.hpp"
 
@@ -32,8 +33,6 @@ public:
         std::cout << "App initialized with Service Container" << std::endl;
     }
 
-    // Example of how App would access its services internally
-    void processEvent(const NetworkEvent& event, SouthBoundInterface& sbi, ITopologyManager& topo);
     void run();
 };
    
